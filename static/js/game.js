@@ -1,7 +1,7 @@
 var player;
 const board = document.getElementById("board");
 
-function fpsToMiliseconds(fps) {
+function fpsToMilliseconds(fps) {
   return 1000/fps;
 }
 
@@ -11,7 +11,7 @@ var game = {
     this.canvas.width = 480;
     this.canvas.height =270;
     this.context = this.canvas.getContext("2d");
-    this.interval = setInterval(updateCanvas, fpsToMiliseconds(45));
+    this.interval = setInterval(updateCanvas, fpsToMilliseconds(45));
     window.addEventListener("keydown", function(event) {
       game.keys = (game.keys || []);
       game.keys[event.keyCode] = true;
