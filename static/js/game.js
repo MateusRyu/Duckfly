@@ -7,6 +7,7 @@ function fpsToMilliseconds(fps) {
 
 var game = {
   canvas: board,
+  gravity: 0.2,
   start: function() {
     this.canvas.width = 480;
     this.canvas.height =270;
@@ -39,33 +40,41 @@ function Player(width, height, color, x, y) {
   this.color = color;
   this.speedX = 0;
   this.speedY = 0;
-  this.gravity = 0.05;
-  this.gravitySpeed = 0;
+  this.accelerationY = game.gravity;
   this.x = x;
   this.y = y;
+  this.jumping = false,
   this.updatePosition = function() {
-    this.gravitySpeed += this.gravity;
+    this.speedY += this.accelerationY;
     this.x += this.speedX;
-    this.y += this.speedY + this.gravitySpeed ;
+    this.y += this.speedY;
     this.hitBottom();
   };
 
   this.hitBottom = function() {
     var floor = game.canvas.height - this.height;
     if (this.y > floor) {
-      this.gravitySpeed = 0;
+      this.jumping = false;
+      this.speedY = 0;
       this.y = floor;
+    }
+  }
+
+  this.jump = function() {
+    if (this.jumping == false) {
+      this.jumping = true;
+      this.accelerationY = -1;
+      setTimeout(() => {
+        this.accelerationY = game.gravity;
+      }, 100)
     }
   }
 
   this.update = function() {
     MainPlayer.speedX = 0;
-    MainPlayer.speedY = 0;
-    MainPlayer.gravity = 0.1;
     if (game.keys && game.keys[37]){ MainPlayer.speedX = -1; }
     if (game.keys && game.keys[39]) {MainPlayer.speedX = 1; } 
-    if (game.keys && game.keys[38]) {MainPlayer.speedY = -1; MainPlayer.gravity = -0.2}
-    if (game.keys && game.keys[40]) {MainPlayer.speedY = 1; } 
+    if (game.keys && game.keys[38]) {MainPlayer.jump() }
  
     this.updatePosition();
     ctx = game.context;
