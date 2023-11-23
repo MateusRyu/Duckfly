@@ -11,12 +11,12 @@ var game = {
     this.interval = requestAnimationFrame(updateCanvas);
     window.addEventListener("keydown", function(event) {
       game.keys = (game.keys || []);
-      game.keys[event.keyCode] = true;
-      console.log(event.keyCode);
+      game.keys[event.key] = true;
+      console.log(event.key);
     });
     window.addEventListener("keyup", function(event) {
       game.keys = (game.keys || []);
-      game.keys[event.keyCode] = false;
+      game.keys[event.key] = false;
     });
   },
 
@@ -68,9 +68,9 @@ function Player(width, height, color, x, y) {
 
   this.update = function() {
     MainPlayer.speedX = 0;
-    if (game.keys && game.keys[37]){ MainPlayer.speedX = -1; }
-    if (game.keys && game.keys[39]) {MainPlayer.speedX = 1; } 
-    if (game.keys && game.keys[38]) {MainPlayer.jump() }
+    if (game.keys && game.keys["ArrowLeft"]){ MainPlayer.speedX = -1; }
+    if (game.keys && game.keys["ArrowRight"]) {MainPlayer.speedX = 1; } 
+    if (game.keys && game.keys["ArrowUp"]) {MainPlayer.jump() }
  
     this.updatePosition();
     ctx = game.context;
