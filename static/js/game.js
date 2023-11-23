@@ -1,10 +1,6 @@
 var player;
 const board = document.getElementById("board");
 
-function fpsToMilliseconds(fps) {
-  return 1000/fps;
-}
-
 var game = {
   canvas: board,
   gravity: 0.2,
@@ -12,7 +8,7 @@ var game = {
     this.canvas.width = 480;
     this.canvas.height =270;
     this.context = this.canvas.getContext("2d");
-    this.interval = setInterval(updateCanvas, fpsToMilliseconds(45));
+    this.interval = requestAnimationFrame(updateCanvas);
     window.addEventListener("keydown", function(event) {
       game.keys = (game.keys || []);
       game.keys[event.keyCode] = true;
@@ -86,6 +82,7 @@ function Player(width, height, color, x, y) {
 function updateCanvas() {
   game.clear();
   MainPlayer.update();
+  requestAnimationFrame(updateCanvas)
 }
 
 startGame();
