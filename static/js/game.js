@@ -1,14 +1,22 @@
-var player;
 const board = document.getElementById("board");
+const state = {
+  gravity: 0.2,
+  canvas: {
+    width: 480,
+    height: 400,
+    contest: false
+  }
+}
 
 var game = {
   canvas: board,
-  gravity: 0.2,
+  animation: false,
+  running: false,
   start: function() {
-    this.canvas.width = 480;
-    this.canvas.height =270;
-    this.context = this.canvas.getContext("2d");
-    this.interval = requestAnimationFrame(updateCanvas);
+    state.canvas.context = game.canvas.getContext("2d");
+    board.width = state.canvas.width;
+    board.height = state.canvas.height
+    game.animation = requestAnimationFrame(updateCanvas);
     window.addEventListener("keydown", function(event) {
       game.keys = (game.keys || []);
       game.keys[event.key] = true;
@@ -17,11 +25,28 @@ var game = {
     window.addEventListener("keyup", function(event) {
       game.keys = (game.keys || []);
       game.keys[event.key] = false;
+      if (event.key == "ArrowUp") {
+        MainPlayer.jumping = 0;
+      }
+      else if (event.key == "Escape") {
+        game.pause();
+      }
     });
+    game.running = true;
+  },
+
+  pause: function() {
+    if (game.running == true) {
+      game.running = false;
+      cancelAnimationFrame(game.animation);
+    } else {
+      game.running = true;
+      game.animation = requestAnimationFrame(updateCanvas);
+    }
   },
 
   clear: function() {
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    state.canvas.context.clearRect(0, 0, state.canvas.width, state.canvas.height)
   }
 };
 
@@ -36,10 +61,13 @@ function Player(width, height, color, x, y) {
   this.color = color;
   this.speedX = 0;
   this.speedY = 0;
-  this.accelerationY = game.gravity;
+  this.accelerationY = state.gravity;
   this.x = x;
   this.y = y;
-  this.jumping = false,
+  this.jumping = 0,
+  this.restoreJump = function() {
+    this.jumping = 8;
+  }
   this.updatePosition = function() {
     this.speedY += this.accelerationY;
     this.x += this.speedX;
@@ -48,41 +76,38 @@ function Player(width, height, color, x, y) {
   };
 
   this.hitBottom = function() {
-    var floor = game.canvas.height - this.height;
+    var floor = state.canvas.height - this.height;
     if (this.y > floor) {
       this.jumping = false;
       this.speedY = 0;
       this.y = floor;
+      this.restoreJump()
     }
   }
 
   this.jump = function() {
-    if (this.jumping == false) {
-      this.jumping = true;
-      this.accelerationY = -1;
-      setTimeout(() => {
-        this.accelerationY = game.gravity;
-      }, 100)
+    if (this.jumping > 0) {
+      console.log(this.jumping)
+      this.accelerationY = -.8;
+      this.jumping -= 1;
     }
-  }
-
-  this.update = function() {
-    MainPlayer.speedX = 0;
-    if (game.keys && game.keys["ArrowLeft"]){ MainPlayer.speedX = -1; }
-    if (game.keys && game.keys["ArrowRight"]) {MainPlayer.speedX = 1; } 
-    if (game.keys && game.keys["ArrowUp"]) {MainPlayer.jump() }
- 
-    this.updatePosition();
-    ctx = game.context;
-    ctx.fillStyle = this.color;
-    ctx.fillRect(this.x, this.y, this.width, this.height);
   }
 }
 
-function updateCanvas() {
-  game.clear();
-  MainPlayer.update();
-  requestAnimationFrame(updateCanvas)
+function updateCanvas() { 
+  if (game.running == true) {
+    MainPlayer.speedX = 0;
+    MainPlayer.accelerationY = state.gravity;
+    if (game.keys && game.keys["ArrowLeft"]){ MainPlayer.speedX = -5; }
+    if (game.keys && game.keys["ArrowRight"]) {MainPlayer.speedX = 5; } 
+    if (game.keys && game.keys["ArrowUp"]) {MainPlayer.jump() }
+    game.clear();
+    MainPlayer.updatePosition();
+    ctx = state.canvas.context;
+    ctx.fillStyle = MainPlayer.color;
+    ctx.fillRect(MainPlayer.x, MainPlayer.y, MainPlayer.width, MainPlayer.height);
+    game.animation = requestAnimationFrame(updateCanvas);
+  }
 }
 
 startGame();
